@@ -1,26 +1,44 @@
 ﻿using System.Collections.Generic;
+using System.IO;
+using System.Numerics;
+using System.Text.Json;
 using System.Threading.Tasks;
 using RaceWinners.Models;
+using ShellProgressBar;
 
 namespace RaceWinners
 {
     public class DataService
     {
+
+        private ProgressBarOptions _options = new ProgressBarOptions
+        {
+            ProgressCharacter = '─',
+            ProgressBarOnBottom = true
+        };
+        private int _totalTicks = 10;
+
+
         public async Task<List<Group>> GetGroupRanksAsync()
         {
             var groups = new List<Group>();
-            
+            using (var pbar = new ProgressBar(_totalTicks, "Fetching Data...", _options))
+            {
+                for(int i = 0; i < _totalTicks; i++)
+                {
+                    await Task.Delay(500);
+                    pbar.Tick();
+                }
+
+            }
             // Simulate a little bit of delay as if we were loading this from a network
-            await Task.Delay(1000);  // 1 second of delay
             
             // Add a group
-            groups.Add(new Group
-            {
-                Name = "Class A",
-                Ranks = new List<int> {4, 9, 11, 12}  // etc
-            });
+            string json = File.ReadAllText("./Data/Groups.json");
+            groups = JsonSerializer.Deserialize<List<Group>>(json);
 
             return groups;
         }
+
     }
 }
